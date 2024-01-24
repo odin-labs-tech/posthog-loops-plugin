@@ -1,0 +1,23 @@
+{
+  "name": "posthog-loops-plugin",
+  "version": "1.0.0",
+  "description": "Passes events from PostHog to Loops.so",
+  "main": "index.js",
+  "repository": "https://github.com/odin-labs-tech/posthog-loops-plugin.git",
+  "author": "Odin Labs, LLC",
+  "license": "MIT",
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "scripts": {
+    "test": "jest ."
+  },
+  "devDependencies": {
+    "@posthog/plugin-scaffold": "0.10.0",
+    "jest": "^27.0.4",
+    "prettier": "^3.2.4"
+  },
+  "dependencies": {
+    "loops": "^0.1.3"
+  }
+}
