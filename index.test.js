@@ -16,23 +16,24 @@ beforeEach(() => {
   });
 });
 
-test('PostHog event sends event to Loops', async () => {
+// We identify the user first to ensure the event is attached later
+test('PostHog identify is sent to Loops', async () => {
   // Create a random event
-  const event = createEvent({
-    event: 'Test Completed',
-    properties: { amount: '20', currency: 'USD' },
-  });
+  const event = createIdentify();
 
-  // Must clone the event since `processEvent` will mutate it
   const isSuccess = await onEvent(event, getMeta());
   expect(isSuccess).toBe(true);
 });
 
-test('PostHog identify creates user in Loops', async () => {
+// We send the event after identifying the user
+test('PostHog event is sent to Loops', async () => {
   // Create a random event
-  const event = createIdentify();
+  const event = createEvent({
+    event: 'Test Completed',
+    // Loops does not currently allow these properties to be sent
+    properties: { amount: '20', currency: 'USD' },
+  });
 
-  // Must clone the event since `processEvent` will mutate it
   const isSuccess = await onEvent(event, getMeta());
   expect(isSuccess).toBe(true);
 });
