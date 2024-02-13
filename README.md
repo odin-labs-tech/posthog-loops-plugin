@@ -8,18 +8,17 @@ This is a PostHog plugin for passing events to the [Loops](https://loops.so) app
 
 This plugin handles two types of actions:
 
-### 1. Identify
-
-When we detect an identify, we will create or update a user in Loops. All custom properties will be included in the create / update call.
-
-- [Documentation on Loops' create contact endpoint](https://loops.so/docs/api-reference/create-contact)
-- [Documentation on Loops' update contact endpoint](https://loops.so/docs/api-reference/update-contact)
-
-### 2. Event
+### 1. Event
 
 When detect a normal event, we will simply send the event to Loops. All custom properties will be included in the event.
 
 - [Documentation on Loop's send event endpoint](https://loops.so/docs/api-reference/send-event)
+
+### 2. Identify
+
+When we detect an identify, we will also send the event to Loops, but also include contact properties. If the user does not exist, it will be created, otherwise, it will be updated.
+
+- [Documentation on Loops' event contact properties](https://loops.so/docs/api-reference/send-event#contact-properties)
 
 ## Testing
 
