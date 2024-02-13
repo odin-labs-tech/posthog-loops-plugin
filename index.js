@@ -1,10 +1,25 @@
-const fetch = require('node-fetch');
-
 // Plugin method that processes event
-async function onEvent(event, { config }) {
-  // Send event to Loops (identifies and events are handled the same way)
-  const response = await fetch('https://app.loops.so/api/v1/events/send', {
-    method: 'post',
+function composeWebhook(event, { config }) {
+  /** Retrieve the config variable for the list of events that should be tracked */
+  const trackedEvents = config?.trackedEvents?.split(',').map((event) => event.trim());
+
+  // Don't send auto-capture events or any untracked events
+  if (
+    // Don't send autocapture events (numerous and not very useful)
+    event.event == '$autocapture' ||
+    !(
+      // Don't send events not in our tracked list
+      (
+        trackedEvents?.includes(event.event) ||
+        // Don't send identifies if we're not supposed to
+        (config.shouldTrackIdentify && event.event === '$identify')
+      )
+    )
+  )
+    return null;
+
+  return {
+    url: 'https://app.loops.so/api/v1/events/send',
     body: JSON.stringify({
       // We can send either userId or email to identify a user (email is included in $set)
       // However, userId will be ignored until it's associated with an email in Loops
@@ -18,17 +33,11 @@ async function onEvent(event, { config }) {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${config.apiKey}`,
     },
-  });
-  result = await response.json();
-
-  // In the scenario where the user is not found, loops can't handle these events and we have to just drop the event
-  if (result.message && result.message.includes('userId not found')) return true;
-
-  // Return whether it was successful
-  return result.success;
+    method: 'POST',
+  };
 }
 
 // The plugin itself
 module.exports = {
-  onEvent,
+  composeWebhook,
 };

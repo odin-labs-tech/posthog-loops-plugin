@@ -10,6 +10,18 @@
       "name": "Loops API Key",
       "type": "string",
       "required": true
+    },
+    {
+      "key": "shouldTrackIdentify",
+      "name": "Should we send identify events to populate Loops user properties?",
+      "type": "boolean",
+      "required": false
+    },
+    {
+      "key": "trackedEvents",
+      "name": "What events would you like to send to Loops? Please provide a comma-separated list of event names (or leave it blank to send all events).",
+      "type": "string",
+      "required": false
     }
   ]
 }
