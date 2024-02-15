@@ -27,7 +27,7 @@ function composeWebhook(event, { config }) {
       // We can only really pass the event name
       eventName: event.event,
       // We can also assign contact properties (but not event properties) during an identify
-      ...event.$set_once,
+      ...(event.event === '$identify' && event.$set),
     }),
     headers: {
       'Content-Type': 'application/json',

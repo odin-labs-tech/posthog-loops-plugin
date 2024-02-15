@@ -25,9 +25,9 @@ test('PostHog identify is sent to Loops', async () => {
 
   const result = composeWebhook(event, getMeta());
 
-  // Verify the event body includes the correct event name
+  // Verify the event body contains the email
   const body = JSON.parse(result.body);
-  expect(body.eventName).toBe('$identify');
+  expect(body.email).toBe('test@posthog.com');
 });
 
 // We send the event after identifying the user
