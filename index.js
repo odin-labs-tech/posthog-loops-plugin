@@ -1,20 +1,31 @@
+// Plugin method used to configure the plugin on startup
+function setupPlugin({ config, global }) {
+  // Declare our default request headers
+  global.defaultHeaders = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${config.apiKey}`,
+  };
+
+  // Convert the shouldTrackIdentify to a boolean
+  global.shouldTrackIdentify = config.shouldTrackIdentify === 'yes';
+
+  // Create a set to easily determine which events are tracked
+  global.trackedEvents = new Set(
+    config.trackedEvents ? config.trackedEvents.split(',').map((event) => event.trim()) : null
+  );
+}
+
 // Plugin method that processes event
-function composeWebhook(event, { config }) {
-  /** Retrieve the config variable for the list of events that should be tracked */
-  const trackedEvents = config?.trackedEvents?.split(',').map((event) => event.trim());
+function composeWebhook(event, { global }) {
+  /** Determine whether we should track this specific event */
+  const shouldTrackEvent = global.trackedEvents ? global.trackedEvents.has(event.event) : true;
 
   // Don't send auto-capture events or any untracked events
   if (
     // Don't send autocapture events (numerous and not very useful)
-    event.event == '$autocapture' ||
-    !(
-      // Don't send events not in our tracked list
-      (
-        trackedEvents?.includes(event.event) ||
-        // Don't send identifies if we're not supposed to
-        (config.shouldTrackIdentify && event.event === '$identify')
-      )
-    )
+    event.event === '$autocapture' ||
+    // Don't send events not in our tracked list
+    (event.event === '$identify' ? !global.shouldTrackIdentify : !shouldTrackEvent)
   )
     return null;
 
@@ -29,15 +40,13 @@ function composeWebhook(event, { config }) {
       // We can also assign contact properties (but not event properties) during an identify
       ...(event.event === '$identify' && event.$set),
     }),
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${config.apiKey}`,
-    },
+    headers: global.defaultHeaders,
     method: 'POST',
   };
 }
 
 // The plugin itself
 module.exports = {
+  setupPlugin,
   composeWebhook,
 };

@@ -4,17 +4,25 @@ const {
   getMeta,
   resetMeta,
 } = require('@posthog/plugin-scaffold/test/utils');
-const { composeWebhook } = require('./index');
+const { setupPlugin, composeWebhook } = require('./index');
 require('dotenv').config();
 
 beforeEach(() => {
+  /** Define our testing config */
+  const config = {
+    apiKey: process.env.LOOPS_API_KEY,
+    shouldTrackIdentify: 'yes',
+    trackedEvents: 'Test Successful',
+  };
+  /** Declare a variable for some global data */
+  const global = {};
+  // Run our setup logic to initialize the global data
+  setupPlugin({ config, global });
+
   // Making sure plugin meta has our custom test config
   resetMeta({
-    config: {
-      apiKey: process.env.LOOPS_API_KEY,
-      shouldTrackIdentify: true,
-      trackedEvents: 'Test Successful',
-    },
+    config,
+    global,
   });
 });
 

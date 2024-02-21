@@ -9,17 +9,21 @@
       "key": "apiKey",
       "name": "Loops API Key",
       "type": "string",
+      "secret": true,
       "required": true
     },
     {
       "key": "shouldTrackIdentify",
-      "name": "Should we send identify events to populate Loops user properties?",
-      "type": "boolean",
-      "required": false
+      "name": "Should we send identify events to populate Loops user properties (yes / no)?",
+      "type": "choice",
+      "choices": ["yes", "no"],
+      "default": "yes",
+      "required": true
     },
     {
       "key": "trackedEvents",
-      "name": "What events would you like to send to Loops? Please provide a comma-separated list of event names (or leave it blank to send all events).",
+      "name": "What events would you like to send to Loops?",
+      "hint": "Please provide a comma-separated list of event names (or leave it blank to send all events).",
       "type": "string",
       "required": false
     }
