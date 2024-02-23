@@ -25,7 +25,9 @@ function composeWebhook(event, { global }) {
     // Don't send autocapture events (numerous and not very useful)
     event.event === '$autocapture' ||
     // Don't send events not in our tracked list
-    (event.event === '$identify' ? !global.shouldTrackIdentify : !shouldTrackEvent)
+    (event.event === '$identify' || event.event === '$set'
+      ? !global.shouldTrackIdentify
+      : !shouldTrackEvent)
   )
     return null;
 
