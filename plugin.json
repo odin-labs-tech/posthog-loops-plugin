@@ -18,6 +18,7 @@
       "type": "choice",
       "choices": ["yes", "no"],
       "default": "yes",
+      "hint": "The identify event is the primary mechanism used to create users in Loops (because Loops requires a user be created with an email before a userId can be used). You can also pass an \"email\" property on any event to generate a new user.",
       "required": true
     },
     {
