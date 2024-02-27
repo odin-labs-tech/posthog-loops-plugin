@@ -49,12 +49,10 @@ function composeWebhook(event, { global }) {
     // We can only really pass the event name
     eventName: event.event,
     // We can also assign contact properties (but not event properties) during an identify
-    ...(event.event === '$identify' && event.$set),
+    ...(event.event === '$identify' && !!event.properties && event.properties.$set),
   };
 
   console.log('Sending event to Loops...', payload);
-
-  if (event.event === '$identify') console.log('Identifying with properties', event);
 
   // Format the webhook for PostHog to process
   return {

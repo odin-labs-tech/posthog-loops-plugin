@@ -31,6 +31,10 @@ beforeEach(() => {
 test('PostHog identify is sent to Loops', async () => {
   // Create a random event
   const event = createIdentify();
+  // The test lib puts the $set in the wrong location, this moves it to the right place
+  event.properties = {
+    $set: event.$set,
+  };
 
   const result = composeWebhook(event, getMeta());
 
