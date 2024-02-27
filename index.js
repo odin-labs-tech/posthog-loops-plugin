@@ -54,6 +54,8 @@ function composeWebhook(event, { global }) {
 
   console.log('Sending event to Loops...', payload);
 
+  if (event.event === '$identify') console.log('Identifying with properties', event);
+
   // Format the webhook for PostHog to process
   return {
     url: 'https://app.loops.so/api/v1/events/send',
