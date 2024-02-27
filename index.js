@@ -16,12 +16,6 @@ function setupPlugin({ config, global }) {
   global.trackedEvents = config.trackedEvents
     ? new Set(config.trackedEvents.split(',').map((event) => event.trim()))
     : null;
-
-  console.log('Plugin configured using settings...', {
-    apiKey: config.apiKey.slice(-4).padStart(config.apiKey.length, 'X'),
-    shouldTrackIdentify: global.shouldTrackIdentify,
-    trackedEvents: global.trackedEvents,
-  });
 }
 
 // Plugin method that processes event
@@ -51,8 +45,6 @@ function composeWebhook(event, { global }) {
     // We can also assign contact properties (but not event properties) during an identify
     ...(event.event === '$identify' && !!event.properties && event.properties.$set),
   };
-
-  console.log('Sending event to Loops...', payload);
 
   // Format the webhook for PostHog to process
   return {
