@@ -42,6 +42,8 @@ function composeWebhook(event, { global }) {
     userId: event.distinct_id,
     // We can only really pass the event name
     eventName: event.event,
+    // If email is provided on the event body, include it as well (that is Loops main identifier)
+    email: event.properties && event.properties.email ? event.properties.email : undefined,
     // We can also assign contact properties (but not event properties) during an identify
     ...(event.event === '$identify' && !!event.properties && event.properties.$set),
   };
