@@ -29,14 +29,15 @@ function composeWebhook(event, { global }) {
   /** Determine whether we should track this specific event */
   const shouldTrackEvent = global.trackedEvents ? global.trackedEvents.has(event.event) : true;
 
+  // Set events should be treated as identify events (not sure why the frontend is sending these as $set events)
+  if (event.event === '$set') event.event = '$identify';
+
   // Don't send auto-capture events or any untracked events
   if (
     // Don't send autocapture events (numerous and not very useful)
     event.event === '$autocapture' ||
     // Don't send events not in our tracked list
-    (event.event === '$identify' || event.event === '$set'
-      ? !global.shouldTrackIdentify
-      : !shouldTrackEvent)
+    (event.event === '$identify' ? !global.shouldTrackIdentify : !shouldTrackEvent)
   )
     return null;
 
