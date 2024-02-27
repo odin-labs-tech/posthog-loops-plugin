@@ -5,15 +5,16 @@ const {
   resetMeta,
 } = require('@posthog/plugin-scaffold/test/utils');
 const { setupPlugin, composeWebhook } = require('./index');
-require('dotenv').config();
+
+const DEFAULT_TEST_CONFIG = {
+  apiKey: 'THIS_IS_AN_EXAMPLE_KEY',
+  shouldTrackIdentify: 'yes',
+  trackedEvents: 'Test Successful',
+};
 
 beforeEach(() => {
   /** Define our testing config */
-  const config = {
-    apiKey: process.env.LOOPS_API_KEY,
-    shouldTrackIdentify: 'yes',
-    trackedEvents: 'Test Successful',
-  };
+  const config = DEFAULT_TEST_CONFIG;
   /** Declare a variable for some global data */
   const global = {};
   // Run our setup logic to initialize the global data
@@ -78,4 +79,34 @@ test('$autocapture PostHog event is NOT sent to Loops', async () => {
 
   // Verify the result is null
   expect(result).toBe(null);
+});
+
+// We should not send autocapture events because they are numerous and not as useful
+test('Any PostHog event is sent to Loops WHEN no trackedEvents provided', async () => {
+  /** Define our testing config for this specific case */
+  const config = {
+    ...DEFAULT_TEST_CONFIG,
+    trackedEvents: undefined,
+  };
+  /** Declare a variable for some global data */
+  const global = {};
+  // Run our setup logic to initialize the global data
+  setupPlugin({ config, global });
+
+  // Making sure plugin meta has our custom test config
+  resetMeta({
+    config,
+    global,
+  });
+
+  // Create a random event
+  const event = createEvent({
+    event: 'Any Event',
+  });
+
+  const result = composeWebhook(event, getMeta());
+
+  // Verify the body includes the correct event name
+  const body = JSON.parse(result.body);
+  expect(body.eventName).toBe('Any Event');
 });

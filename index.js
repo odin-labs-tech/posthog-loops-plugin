@@ -1,5 +1,8 @@
 // Plugin method used to configure the plugin on startup
 function setupPlugin({ config, global }) {
+  // Run some error handling to ensure we have the required configuration
+  if (!config.apiKey) throw new Error('Missing Loops API Key');
+
   // Declare our default request headers
   global.defaultHeaders = {
     'Content-Type': 'application/json',
@@ -10,9 +13,15 @@ function setupPlugin({ config, global }) {
   global.shouldTrackIdentify = config.shouldTrackIdentify === 'yes';
 
   // Create a set to easily determine which events are tracked
-  global.trackedEvents = new Set(
-    config.trackedEvents ? config.trackedEvents.split(',').map((event) => event.trim()) : null
-  );
+  global.trackedEvents = config.trackedEvents
+    ? new Set(config.trackedEvents.split(',').map((event) => event.trim()))
+    : null;
+
+  console.log('Plugin configured using settings...', {
+    apiKey: config.apiKey.slice(-4).padStart(config.apiKey.length, 'X'),
+    shouldTrackIdentify: global.shouldTrackIdentify,
+    trackedEvents: global.trackedEvents,
+  });
 }
 
 // Plugin method that processes event
@@ -31,17 +40,23 @@ function composeWebhook(event, { global }) {
   )
     return null;
 
+  /** Generate our data payload for the API */
+  const payload = {
+    // We can send either userId or email to identify a user (email is included in $set)
+    // However, userId will be ignored until it's associated with an email in Loops
+    userId: event.distinct_id,
+    // We can only really pass the event name
+    eventName: event.event,
+    // We can also assign contact properties (but not event properties) during an identify
+    ...(event.event === '$identify' && event.$set),
+  };
+
+  console.log('Sending event to Loops...', payload);
+
+  // Format the webhook for PostHog to process
   return {
     url: 'https://app.loops.so/api/v1/events/send',
-    body: JSON.stringify({
-      // We can send either userId or email to identify a user (email is included in $set)
-      // However, userId will be ignored until it's associated with an email in Loops
-      userId: event.distinct_id,
-      // We can only really pass the event name
-      eventName: event.event,
-      // We can also assign contact properties (but not event properties) during an identify
-      ...(event.event === '$identify' && event.$set),
-    }),
+    body: JSON.stringify(payload),
     headers: global.defaultHeaders,
     method: 'POST',
   };
